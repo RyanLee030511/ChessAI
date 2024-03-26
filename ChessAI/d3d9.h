@@ -1,0 +1,33 @@
+#pragma once
+#include<vector>
+#include"utils.h"
+
+#include<d3d9.h>
+#include<d3dx9.h>
+#pragma comment (lib,"d3d9.lib")
+#pragma comment (lib,"d3dx9.lib")
+
+struct hollowRect{
+	int left;
+	int top;
+	int width;
+	int height;
+	float weight;
+	D3DCOLOR color = D3DCOLOR_XRGB(0,0,0);
+};
+
+class d3d9
+{
+public:
+	boolean initD3d();
+	void drawHollowRect(int left,int top,int width,int height,float weight,D3DCOLOR color);
+	boolean showWindow();
+
+private:
+
+
+
+public:
+	
+};
+
