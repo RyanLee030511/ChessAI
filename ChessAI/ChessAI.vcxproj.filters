@@ -57,6 +57,9 @@
     <ClInclude Include="d3d9.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="http.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChessAI.cpp">
@@ -90,6 +93,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="d3d9.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="http.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

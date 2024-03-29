@@ -88,6 +88,7 @@ bool Yolo::Detect(cv::Mat& SrcImg, cv::dnn::Net& net, std::vector<Output>& outpu
 		result.id = classIds[idx];
 		result.confidence = confidences[idx];
 		result.box = boxes[idx];
+		/*result.name = className[result.id];*/
 		output.push_back(result);
 	}
 

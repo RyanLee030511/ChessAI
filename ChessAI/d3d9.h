@@ -19,10 +19,11 @@ struct hollowRect{
 class d3d9
 {
 public:
-	boolean initD3d();
+	boolean initD3d(int width, int height);
 	void drawHollowRect(int left,int top,int width,int height,float weight,D3DCOLOR color);
-	boolean showWindow();
-
+	boolean showWindow(HWND hwnd);
+	void clear();
+	void resize(int width, int height);
 private:
 
 

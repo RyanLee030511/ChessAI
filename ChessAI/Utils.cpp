@@ -84,8 +84,8 @@ HBITMAP Utils::WindowCapture_Front(HWND hwnd)
 	GetWindowRect(hwnd, &rect);
 
 	//父窗口置顶 为截图做准备
-	::SetWindowPos((hwnd), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-	::SetWindowPos(::GetParent(hwnd), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	::SetWindowPos((hwnd), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	::SetWindowPos(::GetParent(hwnd), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 	HDC hdc = GetWindowDC(::GetDesktopWindow());
 	HDC memDC;
@@ -331,3 +331,4 @@ bool Utils::HBitmap2Mat(HBITMAP& hBmp, cv::Mat& mat)
 	return true;
 
 }
+

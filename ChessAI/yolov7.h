@@ -5,10 +5,13 @@
 
 #pragma comment(lib,"opencv_world455d.lib")
 
+
+
 struct Output {
-	int id;             //结果类别id
+	int id = -1;             //结果类别id
 	float confidence;   //结果置信度
 	cv::Rect box;       //矩形框
+	std::string name;  //棋子名字
 };
 
 
@@ -36,4 +39,10 @@ private:
 	float nmsScoreThreshold = boxThreshold * classThreshold;
 	std::vector<std::string> className = { "red_che", "red_ma", "red_xiang", "red_shi", "red_shuai", "red_pao", "red_bing", "black_che", "black_ma", "black_xiang",
 	"black_shi", "black_jiang", "black_pao", "black_zu" };
+	//	std::vector<std::string> className = { "红车", "红马", "红相", "红仕", "红帅", "红炮", "红兵", "黑车", "黑马", "黑象",
+	//"黑士", "黑将", "黑炮", "黑卒" };
+	//std::vector<std::string> className = { "车", "马", "相", "仕", "帅", "炮", "兵", "车", "马", "象","士", "将", "炮", "卒" };
+	//std::vector<std::string> className = { "R", "N", "B", "A", "K", "C", "P", "r", "n", "b","a", "k", "c", "p" };
+public:
+
 };

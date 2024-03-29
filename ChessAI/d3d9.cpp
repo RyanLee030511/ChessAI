@@ -13,9 +13,6 @@ HWND hwnd;
 IDirect3DDevice9* g_device;
 ID3DXLine* g_line;
 
-LPDIRECT3DTEXTURE9 g_pTex = NULL;    //纹理  
-LPD3DXSPRITE g_pSprite = NULL;    //点精灵  
-
 
 std::vector<hollowRect> hollowRects;
 
@@ -26,6 +23,8 @@ void render() {
 		return;
 	}
 
+	g_device->Clear(0,NULL, D3DCLEAR_TARGET,RGB(0,0,0),1.0f,0); //清空
+
 	//g_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 255, 200), 1.0f, 0);
 	if (SUCCEEDED(g_device->BeginScene()))
 	{
@@ -34,7 +33,7 @@ void render() {
 
 		//	HWND gameHwnd = (HWND)0x00172636;
 		//	RECT rect;
-	
+
 		//	
 		//	GetWindowRect(gameHwnd, &rect);
 
@@ -51,7 +50,7 @@ void render() {
 			float height = (float)hollowRects[i].height;
 			float weight = hollowRects[i].weight;
 			D3DCOLOR color = hollowRects[i].color;
-			D3DXVECTOR2 Vertex[5] = { {left,top},{left+width,top},{left+width,top+height},{left,top+height},{left,top} };
+			D3DXVECTOR2 Vertex[5] = { {left,top},{left + width,top},{left + width,top + height},{left,top + height},{left,top} };
 			g_line->SetWidth(weight);
 			g_line->Draw(Vertex, 5, color);
 		}
@@ -70,11 +69,11 @@ LRESULT __stdcall Wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		//CleanUp();
 		PostQuitMessage(0);
-		return 0;
+		break;
 	case WM_PAINT:
 		render();
-		ValidateRect(hwnd, NULL);
-		return 0;
+		//ValidateRect(hwnd, NULL);
+		break;
 	default:
 		break;
 	}
@@ -84,7 +83,7 @@ LRESULT __stdcall Wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 
 
-boolean d3d9::initD3d()
+boolean d3d9::initD3d(int width, int height)
 {
 
 	WNDCLASS wc;
@@ -93,22 +92,19 @@ boolean d3d9::initD3d()
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = NULL;
-	wc.hIcon = LoadIcon(0,IDI_APPLICATION);
+	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(0, IDC_ARROW);
 	wc.hbrBackground = /*(HBRUSH)GetStockObject(WHITE_BRUSH)*/NULL;
 	wc.lpszClassName = L"ChessAI";
 	wc.lpszMenuName = NULL;
 	RegisterClass(&wc);
 
-	HWND gameHwnd = ((HWND)0x00172636);
-	RECT rect;
-	GetWindowRect(gameHwnd, &rect);
 
 	//hwnd = CreateWindowEx(WS_EX_LAYERED, L"ChessAI", L"2b", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, NULL, NULL);
-	
-	hwnd = CreateWindowA("ChessAI","绘制窗口", /*WS_OVERLAPPEDWINDOW*/WS_POPUP | WS_SYSMENU | WS_VISIBLE,0,0,rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, NULL, NULL); //AfxGetMainWnd()->m_hWnd
-	::SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-	SetLayeredWindowAttributes(hwnd, 0, (255 * 70) / 150, LWA_ALPHA);
+
+	hwnd = CreateWindowA("ChessAI", "绘制窗口", /*WS_OVERLAPPEDWINDOW | WS_SYSMENU | WS_VISIBLE*/WS_POPUP, 0, 0, width, height, NULL, NULL, NULL, NULL); //AfxGetMainWnd()->m_hWnd
+	::SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+	SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
 
 	//MoveWindow(hwnd, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,FALSE);
 
@@ -134,24 +130,13 @@ boolean d3d9::initD3d()
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.BackBufferWidth = rect.right - rect.left;
-	d3dpp.BackBufferHeight = rect.bottom - rect.top;
+	d3dpp.BackBufferWidth = width;
+	d3dpp.BackBufferHeight = height;
 	d3d9->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_device);
 
 	D3DXCreateLine(g_device, &g_line);
 
-
-	if ((D3DXCreateSprite(g_device, &g_pSprite)))
-	{
-		return E_FAIL;
-	}
-
-	if ((D3DXCreateTextureFromFile(g_device, L"1.png", &g_pTex)))
-	{
-		return E_FAIL;
-	}
-
-    return true;
+	return true;
 }
 
 
@@ -167,41 +152,46 @@ void d3d9::drawHollowRect(int left, int top, int width, int height, float weight
 }
 
 unsigned  threadId[2];
+
 unsigned __stdcall showWindowThread(LPVOID lpParam) {
 	ShowWindow(hwnd, TRUE);
 	UpdateWindow(hwnd);
-
-	MSG msg;
-	while (GetMessage(&msg, hwnd, NULL, NULL))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-
-	UnregisterClassA("ChessAI", NULL);
-
-	return 0;
-}
-
-unsigned __stdcall runafterWindowThread(LPVOID lpParam) {
-
 	while (true)
 	{
-		HWND gameHwnd = ((HWND)0x00172636);
+		HWND gameHwnd = (HWND)lpParam;
 		RECT rect;
 		GetWindowRect(gameHwnd, &rect);
 		SetWindowPos(::hwnd, HWND_TOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, NULL);
 
-		Sleep(10);
+
+		InvalidateRect(hwnd, NULL, TRUE);
+		Sleep(30);
 	}
+
+	UnregisterClassA("ChessAI", NULL);
 	return 0;
 }
 
-boolean d3d9::showWindow() {
+boolean d3d9::showWindow(HWND hwnd) {
 
-	_beginthreadex(NULL, 0, showWindowThread,NULL, 0, &threadId[0]);
-	_beginthreadex(NULL, 0, runafterWindowThread,NULL, 0, &threadId[1]);
-	
+	_beginthreadex(NULL, 0, showWindowThread, hwnd, 0, &threadId[0]);
+
 	return true;
 }
 
+void d3d9::clear() {
+	hollowRects.clear();
+}
+
+
+void d3d9::resize(int width,int height) {
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.BackBufferWidth = width;
+	d3dpp.BackBufferHeight = height;
+
+	g_device->Reset(&d3dpp);
+}
