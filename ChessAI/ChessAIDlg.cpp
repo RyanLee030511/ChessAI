@@ -132,10 +132,10 @@ BOOL CChessAIDlg::OnInitDialog()
 	rect.right -= 5;
 	m_MainDlg.MoveWindow(&rect);
 	m_MainDlg.SetParent(&m_tab);
-	m_MainDlg.ShowWindow(FALSE);
+	m_MainDlg.ShowWindow(TRUE);
 	m_ScreenShotDlg.MoveWindow(&rect);
 	m_ScreenShotDlg.SetParent(&m_tab);
-	m_ScreenShotDlg.ShowWindow(TRUE);
+	m_ScreenShotDlg.ShowWindow(FALSE);
 	m_TrainDlg.MoveWindow(&rect);
 	m_TrainDlg.SetParent(&m_tab);
 	m_TrainDlg.ShowWindow(FALSE);
@@ -145,7 +145,7 @@ BOOL CChessAIDlg::OnInitDialog()
 	m_RenameDlg.MoveWindow(&rect);
 	m_RenameDlg.SetParent(&m_tab);
 	m_RenameDlg.ShowWindow(FALSE);
-	m_tab.SetCurSel(1);
+	m_tab.SetCurSel(0);
 
 
 	AllocConsole();//控制台调试窗口开启  
@@ -161,6 +161,29 @@ BOOL CChessAIDlg::OnInitDialog()
 	CEditView_SaveDir->SetWindowTextW(desktopPath);
 	CEditView* CEditView_TrainOutDir = (CEditView*)m_TrainDlg.GetDlgItem(IDC_EDIT_TRAINOUTDIR);
 	CEditView_TrainOutDir->SetWindowTextW(desktopPath);
+
+
+	//设置状态栏
+	m_Statusbar.Create(this);                  //创造状态栏
+	//m_Statusbar.SetIndicators(indicators, 3);   //设置状态栏项目栏数
+
+	////伸缩窗格以填满空间，第一栏显示IDS_STRING_MESSAGE内容，即“状态栏” ，0表示默认长度 
+	//m_Statusbar.SetPaneInfo(0, IDS_STRING_MESSAGE, SBPS_STRETCH, 0);
+	////窗格突出显示，第二栏长度为320单位，显示IDS_STRING_VERSION字符串  
+	//m_Statusbar.SetPaneInfo(1, IDS_STRING_VERSION, SBPS_POPOUT, 320);
+	//m_Statusbar.SetPaneInfo(2, IDS_STRING_TIME, SBPS_POPOUT, 120); //第三栏长度120单位
+	//RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, IDS_STRING_TIME);//指定状态栏在显示窗口位置
+
+	UINT id[] = { 1000, 1001 };//一个id 是1000  一个是1001创建两个状态栏
+	m_Statusbar.SetIndicators(id, 2);//这个2好像是你id数组的大小也就是下面有几个状态栏，这里是两个
+	m_Statusbar.SetPaneInfo(0, 1000, SBPS_NORMAL, 100);//这里是设置状态栏 第一个参数0代表第一个状态栏 1的话是第二个，第二个参数是状态栏id，第三个是风格，第四个是宽度
+	m_Statusbar.SetPaneInfo(1, 1001, SBPS_STRETCH, 10);//同上这个风格是自动增加的，最后一个参数写不写没什么意思
+	//下面代码是取得本窗口矩形区域...把状态栏放在底部
+	RECT clientRect;
+	GetClientRect(&clientRect);
+	m_Statusbar.MoveWindow(0, clientRect.bottom - 30, clientRect.right, 30, TRUE);//这里设置了状态栏高度
+	m_Statusbar.SetPaneText(0, _T("ChessAI V1.0"), TRUE);//第一个0代表第一个状态栏1代表第二个依次... 第二个是要设置的文本，第三个不清粗
+	m_Statusbar.SetPaneText(1, _T("这里是窗口初始化自带状态文本"), TRUE);//第一个0代表第一个状态栏1代表第二个依次... 第二个是要设置的文本，第三个不清粗
 
 
 

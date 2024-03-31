@@ -16,6 +16,15 @@ struct hollowRect{
 	D3DCOLOR color = D3DCOLOR_XRGB(0,0,0);
 };
 
+struct line {
+	int start_left;
+	int start_top;
+	int end_left;
+	int end_top;
+	float weight;
+	D3DCOLOR color = D3DCOLOR_XRGB(0, 0, 0);
+};
+
 class d3d9
 {
 public:
@@ -24,6 +33,8 @@ public:
 	boolean showWindow(HWND hwnd);
 	void clear();
 	void resize(int width, int height);
+
+	void drawLine(int start_left, int start_top, int end_left, int end_top, float weight, D3DCOLOR color);
 private:
 
 

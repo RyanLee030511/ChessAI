@@ -46,14 +46,26 @@
 #define IDC_EDIT_RENAMEDIR              1035
 #define IDC_EDIT_PREFIX                 1036
 #define IDC_BUTTON_SETRENAMEDIR         1037
+#define IDC_CHECK1                      1038
+#define IDC_CHECK2                      1039
+#define IDC_CHECK3                      1040
+#define IDC_CHECK4                      1041
+#define IDC_CHECK5                      1042
+#define IDC_EDIT1                       1043
+#define IDC_COMBO1                      1045
+#define IDC_MFCCOLORBUTTON1             1049
+#define IDC_MFCCOLORBUTTON2             1052
+#define IDC_MFCCOLORBUTTON3             1053
+#define IDC_MFCCOLORBUTTON4             1054
+#define IDC_MFCCOLORBUTTON5             1055
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        146
+#define _APS_NEXT_RESOURCE_VALUE        147
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_CONTROL_VALUE         1050
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

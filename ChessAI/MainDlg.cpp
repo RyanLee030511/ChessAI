@@ -8,7 +8,9 @@
 
 #include "yolov7.h"
 #include "d3d9.h"
-
+#include "http.h"
+#include "Engine.h"
+#include "Process.h"
 
 // MainDlg 对话框
 
@@ -27,6 +29,7 @@ MainDlg::~MainDlg()
 void MainDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_CHESSBOARD, m_chessboard);
 }
 
 
@@ -35,6 +38,16 @@ BEGIN_MESSAGE_MAP(MainDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
+int getNumsByRowFlag(std::string rowFlag) {
+	std::string rowFlags[9] = { "a","b","c","d","e","f","g","h","i" };
+	for (int i = 0; i < 9; i++)
+	{
+		if (rowFlags[i].compare(rowFlag) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
 
 std::string calcFEN(Output maps[10][9]) {
 	std::string fen;
@@ -100,6 +113,8 @@ HWND gameHwnd;
 // MainDlg 消息处理程序
 
 DWORD WINAPI drawThread(LPVOID lpParam) {
+	MainDlg *mainDlg = (MainDlg*)lpParam;
+
 
 	std::string modelPath = "best.onnx";
 	if (yolo.readModel(net, modelPath, false)) {
@@ -111,6 +126,9 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 
 	while (true) {
 		HBITMAP bitmap = Utils::WindowCapture_Front(gameHwnd);
+		//显示缩略图
+		mainDlg->m_chessboard.SetBitmap(Utils::stretchBitMap(bitmap,300,280));
+
 		Utils::saveBitMap(L"1.png", bitmap);
 
 		cv::Mat img = cv::imread("1.png");
@@ -137,6 +155,16 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 		float left_top_Point[2] = {width*208/838,height*55/624};
 		float margin = width * 55 / 838;
 		
+		//给空格也计算出大概的位置
+		for (int i = 0; i < 10; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				maps[i][j].box.x = (int)(left_top_Point[0] + margin * j);
+				maps[i][j].box.y = (int)(left_top_Point[1] + margin * i);
+			}
+		}
+
 		for (int i = 0; i < result.size(); i++)
 		{
 			int xIndex = (int)round((result[i].box.x + (result[i].box.width/2) - left_top_Point[0]) / margin);
@@ -171,15 +199,41 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 			printf("\n");
 		}
 		
+		Engine_yunku engineYunku;
+		//获取最佳走法
+		int row_begin = 0, col_begin = 0 , row_end = 0 , col_end = 0;
+		try {
+
+			std::string runStep = engineYunku.calcStep(calcFEN(maps));
+			if (runStep.size() == 4)
+			{
+				std::string s1 = runStep.substr(0, 1);
+				std::string s2 = runStep.substr(1, 1);
+				std::string s3 = runStep.substr(2, 1);
+				std::string s4 = runStep.substr(3, 1);
+				row_begin = getNumsByRowFlag(s1);
+				col_begin = atoi(s2.c_str());
+				row_end = getNumsByRowFlag(s3);
+				col_end = atoi(s4.c_str());
+				printf("(%d.%d)==>(%d.%d)\n", row_begin, col_begin, row_end, col_end);
+			}
+		}
+		catch (std::exception e) {
+
+		}
+
 
 
 		d3d.clear();
+		//绘制棋子方框
 		for (int i = 0; i < result.size(); i++)
 		{
 			d3d.drawHollowRect(result[i].box.x, result[i].box.y, result[i].box.width, result[i].box.height, 4.0f, D3DCOLOR_XRGB(255, 0, 0));
-			
-		
 		}
+		//绘制最佳行棋路线
+		d3d.drawLine(maps[9 - col_begin][row_begin].box.x + maps[9 - col_begin][row_begin].box.width/2, maps[9 - col_begin][row_begin].box.y + maps[9 - col_begin][row_begin].box.height/2, maps[9 - col_end][row_end].box.x, maps[9 - col_end][row_end].box.y, 4.0f, D3DCOLOR_XRGB(255, 0, 0));
+
+		printf("%d.%d --> %d.%d\n", maps[9 - col_begin][row_begin].box.x, maps[9 - col_begin][row_begin].box.y, maps[9 - col_end][row_end].box.x, maps[9 - col_end][row_end].box.y);
 
 		Sleep(100);
 	}
@@ -246,25 +300,35 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 
 //return;
 
-#include "http.h"
+
+
 void MainDlg::OnBnClickedButtonReaddata()
 {
-
-	http http;
-	http.open("http://www.chessdb.cn/chessdb.php?action=queryall&board=r1bakabnr/9/1cn4c1/p1p1p1p1p/9/9/P1P1P1P1P/4C2C1/9/RNBAKABNR%20w");
-	http.get();
-
+	Process process;
+	process.createProcess("C:\\Users\\Administrator\\Desktop\\pikayu\\pikafish-avx2.exe");
+	//process.createProcess("C:\\Users\\Administrator\\Desktop\\pikayu\\pikafish-avx2.exe isready & go");
+	process.addCmdLine("isready");
+	process.addCmdLine("go depth 10");
+	process.execute();
 	return;
 
-	
+
 	gameHwnd = FindWindowExA(FindWindowA(NULL, "天天象棋"), 0, "Intermediate D3D Window", "");
+
+
+	//HBITMAP bitmap = Utils::WindowCapture_Front(gameHwnd);
+	//this->m_chessboard.SetBitmap(Utils::stretchBitMap(bitmap,300,280));
+	//return;
+
+
+
 	RECT rect;
 	::GetWindowRect(gameHwnd, &rect);
 	d3d.initD3d(rect.right - rect.left, rect.bottom - rect.top);
 	d3d.showWindow(gameHwnd);
 
 
-	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)drawThread, NULL, 0, NULL);
+	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)drawThread, this, 0, NULL);
 	//printf("123");
 
 }

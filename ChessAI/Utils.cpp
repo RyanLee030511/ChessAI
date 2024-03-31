@@ -332,3 +332,19 @@ bool Utils::HBitmap2Mat(HBITMAP& hBmp, cv::Mat& mat)
 
 }
 
+
+std::string Utils::ReplaceAllText(std::string str, std::string a, std::string b)
+{
+	int oldPos = 0;
+	while (str.find(a, oldPos) != -1)//在未被替换的文本中寻找目标文本
+	{
+		int start = str.find(a, oldPos);//找到目标文本的起始下标
+
+		str.replace(start, a.size(), b);
+		//从str[start]开始到str[a.size()]替换为b
+		//str[start]到str[a.size()]也就是a所在得片段
+
+		oldPos = start + b.size();//记录未替换文本的起始下标
+	}
+	return str;
+}

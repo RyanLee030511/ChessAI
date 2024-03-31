@@ -15,6 +15,8 @@ ID3DXLine* g_line;
 
 
 std::vector<hollowRect> hollowRects;
+std::vector<line> lines;
+
 
 
 void render() {
@@ -54,6 +56,21 @@ void render() {
 			g_line->SetWidth(weight);
 			g_line->Draw(Vertex, 5, color);
 		}
+		//ªÊ÷∆÷±œﬂ
+		for (int i = 0; i < lines.size(); i++)
+		{
+			float start_left = (float)lines[i].start_left;
+			float start_top = (float)lines[i].start_top;
+			float end_left = (float)lines[i].end_left;
+			float end_top = (float)lines[i].end_top;
+			float weight = lines[i].weight;
+			D3DCOLOR color = lines[i].color;
+			D3DXVECTOR2 Vertex[5] = { {start_left,start_top},{end_left,end_top},{end_left+weight , end_top+weight},{start_left + weight,start_top + weight},{start_left,start_top} };
+			g_line->SetWidth(weight);
+			g_line->Draw(Vertex, 5, color);
+		}
+
+
 		g_device->EndScene();
 	}
 	g_device->Present(NULL, NULL, NULL, NULL);
@@ -156,15 +173,16 @@ unsigned  threadId[2];
 unsigned __stdcall showWindowThread(LPVOID lpParam) {
 	ShowWindow(hwnd, TRUE);
 	UpdateWindow(hwnd);
+
+	HWND gameHwnd = (HWND)lpParam;
 	while (true)
 	{
-		HWND gameHwnd = (HWND)lpParam;
 		RECT rect;
 		GetWindowRect(gameHwnd, &rect);
 		SetWindowPos(::hwnd, HWND_TOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, NULL);
 
 
-		InvalidateRect(hwnd, NULL, TRUE);
+		InvalidateRect(::hwnd, NULL, TRUE);
 		Sleep(30);
 	}
 
@@ -180,7 +198,9 @@ boolean d3d9::showWindow(HWND hwnd) {
 }
 
 void d3d9::clear() {
+	
 	hollowRects.clear();
+	lines.clear();
 }
 
 
@@ -194,4 +214,16 @@ void d3d9::resize(int width,int height) {
 	d3dpp.BackBufferHeight = height;
 
 	g_device->Reset(&d3dpp);
+}
+
+void d3d9::drawLine(int start_left, int start_top, int end_left, int end_top, float weight, D3DCOLOR color)
+{
+	line l;
+	l.start_left = start_left;
+	l.start_top = start_top;
+	l.end_left = end_left;
+	l.end_top = end_top;
+	l.weight = weight;
+	l.color = color;
+	lines.push_back(l);
 }

@@ -47,4 +47,7 @@ public:
 	int cursel;
 	afx_msg void OnTcnSelchangeTab(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnTcnSelchangingTab(NMHDR* pNMHDR, LRESULT* pResult);
+
+	CStatusBar	m_Statusbar;			//状态栏类
+
 };

@@ -39,6 +39,6 @@ public:
 	std::string post(std::string body);
 
 private:
-	boolean call(std::string method,std::string data);
+	std::string call(std::string method,std::string data);
 };
 
