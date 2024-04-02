@@ -163,6 +163,12 @@ BOOL CChessAIDlg::OnInitDialog()
 	CEditView_TrainOutDir->SetWindowTextW(desktopPath);
 
 
+	CMenu menu;
+	menu.LoadMenuW(IDR_MENU1);
+	SetMenu(&menu);
+	//menu.Detach();//防止窗口创建后menu2被释放，再按选项
+
+
 	//设置状态栏
 	m_Statusbar.Create(this);                  //创造状态栏
 	//m_Statusbar.SetIndicators(indicators, 3);   //设置状态栏项目栏数
@@ -184,8 +190,6 @@ BOOL CChessAIDlg::OnInitDialog()
 	m_Statusbar.MoveWindow(0, clientRect.bottom - 30, clientRect.right, 30, TRUE);//这里设置了状态栏高度
 	m_Statusbar.SetPaneText(0, _T("ChessAI V1.0"), TRUE);//第一个0代表第一个状态栏1代表第二个依次... 第二个是要设置的文本，第三个不清粗
 	m_Statusbar.SetPaneText(1, _T("这里是窗口初始化自带状态文本"), TRUE);//第一个0代表第一个状态栏1代表第二个依次... 第二个是要设置的文本，第三个不清粗
-
-
 
 
 

@@ -54,7 +54,7 @@ void Process::addCmdLine(std::string cmdLine)
 	cmdLines.push_back(cmdLine);
 }
 
-std::string Process::execute()
+std::string Process::execute(std::string endFlag)
 {
 	std::string cmd;
 	for (int i = 0; i < cmdLines.size(); i++)
@@ -63,40 +63,34 @@ std::string Process::execute()
 	}
 	WriteFile(hInWrite, cmd.c_str(), cmd.length(), NULL, NULL);
 
-	//std::string buf = "isready\r\ngo\r\n";
-	//bool ret = WriteFile(hInWrite, buf.c_str(), buf.length(), NULL, NULL);
-	//if (!ret)
-	//{
-	//	cout << "写入管道数据失败。" << endl;
-	//}
-	//else
-	//{
-	//	cout << "写入管道数据成功。" << endl;
-	//}
-
-
 	std::string strRet;
-	char resultbuffer[10000]{ 0 };
-	DWORD dwRead = 0;
+	char resultbuffer[1024]{ 0 };
+
 	while (true)
 	{
-		memset(resultbuffer, 0, 10000);
-		if (!ReadFile(hOutRead, resultbuffer, sizeof(resultbuffer), &dwRead, NULL))
+		memset(resultbuffer, 0, 1024);
+		if (!ReadFile(hOutRead, resultbuffer, sizeof(resultbuffer) - 1, NULL, NULL))
 		{
 			break;
 		}
-		strRet += std::string(resultbuffer, dwRead);
+		strRet += resultbuffer;
 
-		printf("%s", resultbuffer);
+		//printf("%s", resultbuffer);
 
-		if (strRet.find("bestmove") != std::string::npos)
+		int idx;
+
+		if ((idx = strRet.find(endFlag)) != std::string::npos)
 		{
-			break;
+			for (int i = 0; i < strlen(resultbuffer); i++)
+			{
+				std::string tmp = strRet.substr(idx + endFlag.size() + i, 1);
+				if (tmp == "\r" || tmp == "\n")
+				{
+					printf("all:\n%s\n", strRet.c_str());
+					return strRet;
+				}
+			}
 		}
-
 	}
-	printf("\nall:%s", strRet.c_str());
-
-
-	return std::string();
+	
 }

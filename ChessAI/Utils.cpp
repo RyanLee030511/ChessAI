@@ -348,3 +348,23 @@ std::string Utils::ReplaceAllText(std::string str, std::string a, std::string b)
 	}
 	return str;
 }
+
+int Utils::getTextTimes(std::string str, std::string flag)
+{
+	int times = 0;
+
+	int idx = 0;
+	while (true)
+	{
+		idx = str.find(flag, idx);
+		if (idx == std::string::npos)
+		{
+			return times;
+		}
+		else {
+			times++;
+			idx += flag.size();
+		}
+	}
+}
+

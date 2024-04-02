@@ -2,6 +2,7 @@
 #include<string>
 #include<vector>
 #include<atlconv.h>
+#include"Utils.h"
 class Process
 {
 private:
@@ -13,6 +14,6 @@ private:
 public:
 	void createProcess(std::string process);
 	void addCmdLine(std::string cmdLine);
-	std::string execute();
+	std::string execute(std::string endFlag);
 };
 

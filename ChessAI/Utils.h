@@ -46,6 +46,7 @@ public:
 	static CString getTimeStamp(bool isMilliSecond = FALSE);
 	static bool HBitmap2Mat(HBITMAP& hBmp, cv::Mat& mat);
 	static std::string ReplaceAllText(std::string str, std::string a, std::string b);
+	static int getTextTimes(std::string str, std::string flag);
 };
 
 

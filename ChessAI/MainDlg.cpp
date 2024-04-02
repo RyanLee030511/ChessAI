@@ -38,17 +38,6 @@ BEGIN_MESSAGE_MAP(MainDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-int getNumsByRowFlag(std::string rowFlag) {
-	std::string rowFlags[9] = { "a","b","c","d","e","f","g","h","i" };
-	for (int i = 0; i < 9; i++)
-	{
-		if (rowFlags[i].compare(rowFlag) == 0) {
-			return i;
-		}
-	}
-	return -1;
-}
-
 std::string calcFEN(Output maps[10][9]) {
 	std::string fen;
 	boolean isRed = false;
@@ -200,11 +189,13 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 		}
 		
 		Engine_yunku engineYunku;
+		
+		Engine_pikafish enginePikafish;
 		//获取最佳走法
-		int row_begin = 0, col_begin = 0 , row_end = 0 , col_end = 0;
+		/*int row_begin = 0, col_begin = 0 , row_end = 0 , col_end = 0;
 		try {
 
-			std::string runStep = engineYunku.calcStep(calcFEN(maps));
+			std::string runStep = enginePikafish.calcStep(calcFEN(maps));
 			if (runStep.size() == 4)
 			{
 				std::string s1 = runStep.substr(0, 1);
@@ -220,9 +211,10 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 		}
 		catch (std::exception e) {
 
-		}
+		}*/
 
-
+		std::string fen = calcFEN(maps);
+		stepIdx stepIdx = Engine::getStepIdx(enginePikafish.calcStep(fen), fen);
 
 		d3d.clear();
 		//绘制棋子方框
@@ -231,9 +223,10 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 			d3d.drawHollowRect(result[i].box.x, result[i].box.y, result[i].box.width, result[i].box.height, 4.0f, D3DCOLOR_XRGB(255, 0, 0));
 		}
 		//绘制最佳行棋路线
-		d3d.drawLine(maps[9 - col_begin][row_begin].box.x + maps[9 - col_begin][row_begin].box.width/2, maps[9 - col_begin][row_begin].box.y + maps[9 - col_begin][row_begin].box.height/2, maps[9 - col_end][row_end].box.x, maps[9 - col_end][row_end].box.y, 4.0f, D3DCOLOR_XRGB(255, 0, 0));
+		//d3d.drawLine(maps[9 - col_begin][row_begin].box.x + maps[9 - col_begin][row_begin].box.width/2, maps[9 - col_begin][row_begin].box.y + maps[9 - col_begin][row_begin].box.height/2, maps[9 - col_end][row_end].box.x, maps[9 - col_end][row_end].box.y, 4.0f, D3DCOLOR_XRGB(255, 0, 0));
+		d3d.drawLine(maps[stepIdx.beginX][stepIdx.beginY].box.x + maps[stepIdx.beginX][stepIdx.beginY].box.width/2, maps[stepIdx.beginX][stepIdx.beginY].box.y + maps[stepIdx.beginX][stepIdx.beginY].box.height/2, maps[stepIdx.endX][stepIdx.endY].box.x, maps[stepIdx.endX][stepIdx.endY].box.y, 4.0f, D3DCOLOR_XRGB(255, 0, 0));
 
-		printf("%d.%d --> %d.%d\n", maps[9 - col_begin][row_begin].box.x, maps[9 - col_begin][row_begin].box.y, maps[9 - col_end][row_end].box.x, maps[9 - col_end][row_end].box.y);
+		//printf("%d.%d --> %d.%d\n", maps[9 - col_begin][row_begin].box.x, maps[9 - col_begin][row_begin].box.y, maps[9 - col_end][row_end].box.x, maps[9 - col_end][row_end].box.y);
 
 		Sleep(100);
 	}
@@ -304,13 +297,7 @@ DWORD WINAPI drawThread(LPVOID lpParam) {
 
 void MainDlg::OnBnClickedButtonReaddata()
 {
-	Process process;
-	process.createProcess("C:\\Users\\Administrator\\Desktop\\pikayu\\pikafish-avx2.exe");
-	//process.createProcess("C:\\Users\\Administrator\\Desktop\\pikayu\\pikafish-avx2.exe isready & go");
-	process.addCmdLine("isready");
-	process.addCmdLine("go depth 10");
-	process.execute();
-	return;
+
 
 
 	gameHwnd = FindWindowExA(FindWindowA(NULL, "天天象棋"), 0, "Intermediate D3D Window", "");
